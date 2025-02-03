@@ -1,5 +1,6 @@
-import React from "react";
-import { Card, Button } from "react-bootstrap";
+// SongCard.js
+import React from 'react';
+import { Card, Button } from 'react-bootstrap';
 
 const SongCard = ({ song, onPlay }) => {
   return (
@@ -8,7 +9,7 @@ const SongCard = ({ song, onPlay }) => {
       <Card.Body>
         <Card.Title>{song.name}</Card.Title>
         <Card.Text>{song.artist}</Card.Text>
-        <Button variant="primary" onClick={onPlay}>
+        <Button variant="primary" onClick={() => onPlay(song.id)}>
           Play
         </Button>
       </Card.Body>

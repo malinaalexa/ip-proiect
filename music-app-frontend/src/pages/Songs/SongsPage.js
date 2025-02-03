@@ -1,12 +1,28 @@
-import React, { useState } from "react";
-import SongService from "../../api/songService";
-import SongCard from "../../components/SongCard";
-import { InputGroup, FormControl, Row, Col, Spinner } from "react-bootstrap";
+// src/pages/SongsPage.js
+import React, { useEffect, useState } from 'react';
+import SongService from '../../api/songService';
+import SongCard from '../../components/SongCard';
+import { Container, Row, Col, Spinner, InputGroup, FormControl } from 'react-bootstrap';
 
-const SongsPage = () => {
+const SongsPage = ({ startAudio }) => {
   const [songs, setSongs] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    const fetchSongs = async () => {
+      try {
+        // Using a default search term or however you want to load songs
+        const data = await SongService.getSongs('popular songs');
+        setSongs(data);
+        setLoading(false);
+      } catch (error) {
+        console.error('Failed to fetch songs', error);
+        setLoading(false);
+      }
+    };
+    fetchSongs();
+  }, []);
 
   const handleSearchChange = (e) => setSearch(e.target.value);
 
@@ -16,41 +32,44 @@ const SongsPage = () => {
     try {
       const data = await SongService.getSongs(search);
       setSongs(data);
+      setLoading(false);
     } catch (error) {
-      console.error("Failed to fetch songs", error);
+      console.error('Failed to fetch songs', error);
+      setLoading(false);
     }
-    setLoading(false);
   };
 
+  if (loading) {
+    return (
+      <div className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+        <Spinner animation="border" />
+      </div>
+    );
+  }
+
   return (
-    <div className="container">
-      <h2 className="mt-4 text-center">Search YouTube Songs</h2>
+    <Container className="futuristic-bg">
+      <h2 className="mt-4 text-center">Browse Songs</h2>
       <InputGroup className="mb-4 mt-3">
         <FormControl
-          placeholder="Search for a song..."
+          placeholder="Search by song or artist..."
           value={search}
           onChange={handleSearchChange}
-          onKeyPress={(e) => e.key === "Enter" && searchSongs()}
+          onKeyPress={(e) => e.key === 'Enter' && searchSongs()}
         />
       </InputGroup>
-      {loading ? (
-        <div className="text-center">
-          <Spinner animation="border" />
-        </div>
-      ) : (
-        <Row>
-          {songs.length > 0 ? (
-            songs.map((song) => (
-              <Col md={4} sm={6} xs={12} key={song.id} className="mb-4">
-                <SongCard song={song} onPlay={() => window.open(song.link, "_blank")} />
-              </Col>
-            ))
-          ) : (
-            <p className="text-center mt-5">No songs found!</p>
-          )}
-        </Row>
-      )}
-    </div>
+      <Row>
+        {songs.length > 0 ? (
+          songs.map((song) => (
+            <Col md={4} sm={6} xs={12} key={song.id} className="mb-4">
+              <SongCard song={song} onPlay={startAudio} />
+            </Col>
+          ))
+        ) : (
+          <p className="text-center mt-5">No songs found!</p>
+        )}
+      </Row>
+    </Container>
   );
 };
 

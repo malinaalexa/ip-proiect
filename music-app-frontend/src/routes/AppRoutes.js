@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import PersistentAudioPlayer from '../components/PersistentAudioPlayer';
 
 // Import Auth Pages
 import LoginPage from '../pages/Auth/LoginPage';
@@ -33,11 +34,30 @@ import RewardDetailsPage from '../pages/Rewards/RewardDetailsPage';
 
 // Authentication Wrapper for Protected Routes
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = !!localStorage.getItem('token'); // Replace with a proper auth check
+  const isAuthenticated = !!localStorage.getItem('token'); // Replace with proper auth check
   return isAuthenticated ? children : <Navigate to="/" />;
 };
 
 const AppRoutes = () => {
+  const [audioState, setAudioState] = useState({
+    videoUrl: '',
+    playing: false,
+  });
+
+  const startAudio = (videoId) => {
+    setAudioState({
+      videoUrl: `https://www.youtube.com/watch?v=${videoId}`,
+      playing: true,
+    });
+  };
+
+  const closeAudio = () => {
+    setAudioState((prevState) => ({
+      ...prevState,
+      playing: false,
+    }));
+  };
+
   return (
     <Router>
       <Navbar />
@@ -48,114 +68,40 @@ const AppRoutes = () => {
           <Route path="/register" element={<RegisterPage />} />
 
           {/* Dashboard Routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <HomePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/leaderboard"
-            element={
-              <ProtectedRoute>
-                <LeaderboardPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/dashboard" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/leaderboard" element={<ProtectedRoute><LeaderboardPage /></ProtectedRoute>} />
 
           {/* Playlist Routes */}
-          <Route
-            path="/playlists"
-            element={
-              <ProtectedRoute>
-                <PlaylistsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/playlists/:id"
-            element={
-              <ProtectedRoute>
-                <PlaylistDetailsPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/playlists" element={<ProtectedRoute><PlaylistsPage /></ProtectedRoute>} />
+          <Route path="/playlists/:id" element={<ProtectedRoute><PlaylistDetailsPage /></ProtectedRoute>} />
 
-          {/* Songs Routes */}
-          <Route
-            path="/songs"
-            element={
-              <ProtectedRoute>
-                <SongsPage />
-              </ProtectedRoute>
-            }
-          />
+          {/* Songs Routes - Pass startAudio to SongsPage */}
+          <Route path="/songs" element={<ProtectedRoute><SongsPage startAudio={startAudio} /></ProtectedRoute>} />
 
           {/* Streaming Rooms Routes */}
-          <Route
-            path="/rooms"
-            element={
-              <ProtectedRoute>
-                <RoomsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/rooms/:id"
-            element={
-              <ProtectedRoute>
-                <RoomDetailsPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/rooms" element={<ProtectedRoute><RoomsPage /></ProtectedRoute>} />
+          <Route path="/rooms/:id" element={<ProtectedRoute><RoomDetailsPage /></ProtectedRoute>} />
 
           {/* Contests Routes */}
-          <Route
-            path="/contests"
-            element={
-              <ProtectedRoute>
-                <ContestsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/contests/:id"
-            element={
-              <ProtectedRoute>
-                <ContestDetailsPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/contests" element={<ProtectedRoute><ContestsPage /></ProtectedRoute>} />
+          <Route path="/contests/:id" element={<ProtectedRoute><ContestDetailsPage /></ProtectedRoute>} />
 
           {/* Rewards Routes */}
-          <Route
-            path="/rewards"
-            element={
-              <ProtectedRoute>
-                <RewardsPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/rewards/:id"
-            element={
-              <ProtectedRoute>
-                <RewardDetailsPage />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/rewards" element={<ProtectedRoute><RewardsPage /></ProtectedRoute>} />
+          <Route path="/rewards/:id" element={<ProtectedRoute><RewardDetailsPage /></ProtectedRoute>} />
         </Routes>
       </div>
+
+      {/* ✅ Persistent Audio Player (Visible on All Pages) ✅ */}
+      {audioState.playing && (
+        <PersistentAudioPlayer
+          videoUrl={audioState.videoUrl}
+          playing={audioState.playing}
+          onClose={closeAudio}
+        />
+      )}
+
       <Footer />
     </Router>
   );
