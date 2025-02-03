@@ -1,19 +1,12 @@
-import axiosInstance from './axiosInstance';
-import SongModel from '../models/SongModel';
+import axios from "axios";
 
-export default class SongService {
-  static async getAllSongs() {
-    const response = await axiosInstance.get('/songs');
-    return response.data.map((song) => SongModel.fromServerResponse(song));
-  }
+const API_URL = "http://localhost:5000/api/songs"; // Backend URL
 
-  static async addSong(name, artist, genres, link) {
-    const response = await axiosInstance.post('/songs', {
-      name,
-      artist,
-      genres,
-      link,
-    });
-    return SongModel.fromServerResponse(response.data);
-  }
-}
+const SongService = {
+  getSongs: async (query) => {
+    const response = await axios.get(API_URL, { params: { query } });
+    return response.data;
+  },
+};
+
+export default SongService;
