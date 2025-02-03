@@ -1,0 +1,44 @@
+.futuristic-bg {
+  background: linear-gradient(to right, #141e30, #243b55);
+  min-height: 100vh;
+  color: #ffffff;
+  padding-bottom: 50px;
+}
+
+.playlist-details-card {
+  background-color: #1e293b;
+  color: #ffffff;
+  border-radius: 15px;
+  padding: 20px;
+}
+
+.futuristic-text {
+  font-family: 'Orbitron', sans-serif;
+  color: #00ffcc;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+}
+
+.futuristic-subtext {
+  color: #cccccc;
+  font-family: 'Roboto', sans-serif;
+  font-size: 1rem;
+}
+
+.song-item {
+  transition: transform 0.2s ease-in-out;
+}
+
+.song-item:hover {
+  transform: scale(1.02);
+}
+
+.song-item button {
+  background-color: #00ffcc;
+  border: none;
+  color: #141e30;
+}
+
+.song-item button:hover {
+  background-color: #00e6b8;
+  color: #ffffff;
+}
