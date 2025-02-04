@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const axiosInstance = axios.create({
   baseURL: 'http://localhost:3001/api', // Update the URL to match your backend
+  headers: { 'Content-Type': 'application/json' },
 });
 
 axiosInstance.interceptors.request.use((config) => {

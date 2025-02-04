@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import PersistentAudioPlayer from '../components/PersistentAudioPlayer';
+import { useUser } from '../context/UserContext';
+import { UserProvider } from '../context/UserContext'; // Import UserProvider
 
 // Import Auth Pages
 import LoginPage from '../pages/Auth/LoginPage';
@@ -34,9 +36,13 @@ import RewardDetailsPage from '../pages/Rewards/RewardDetailsPage';
 
 // Authentication Wrapper for Protected Routes
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = !!localStorage.getItem('token'); // Replace with proper auth check
-  return isAuthenticated ? children : <Navigate to="/" />;
+  const { user } = useUser();  // Access user from the context
+
+  // If the user is authenticated, return the children (protected content)
+  // Otherwise, redirect to the login page ("/")
+  return user ? children : <Navigate to="/" />;
 };
+
 
 const AppRoutes = () => {
   const [audioState, setAudioState] = useState({
@@ -59,6 +65,7 @@ const AppRoutes = () => {
   };
 
   return (
+    <UserProvider> 
     <Router>
       <Navbar />
       <div className="main-content">
@@ -93,7 +100,6 @@ const AppRoutes = () => {
         </Routes>
       </div>
 
-      {/* ✅ Persistent Audio Player (Visible on All Pages) ✅ */}
       {audioState.playing && (
         <PersistentAudioPlayer
           videoUrl={audioState.videoUrl}
@@ -104,6 +110,7 @@ const AppRoutes = () => {
 
       <Footer />
     </Router>
+    </UserProvider> 
   );
 };
 

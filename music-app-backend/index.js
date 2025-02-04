@@ -5,6 +5,8 @@ const cors = require("cors");
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
+// Nu mai este nevoie de: const express = require("express");
+
 
 const authRoutes = require("./routes/auth");
 const userRoutes = require("./routes/user");

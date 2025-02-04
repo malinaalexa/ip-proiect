@@ -1,10 +1,15 @@
 const express = require("express");
-const { getSongs, addSong } = require("../controllers/songController");
+const { getSongs, logListeningHistory, getListeningMetrics } = require("../controllers/songController");
 
 const router = express.Router();
-
-// Routes
+const { authenticate } = require("../middleware/auth");
+// GET /api/songs/          → Return songs from YouTube
 router.get("/", getSongs);
-router.post("/", addSong); // Ensure addSong is correctly imported
+
+// POST /api/songs/log       → Log listening history (must be POST)
+router.post("/log", authenticate, logListeningHistory);
+
+// GET /api/songs/metrics    → Fetch listening metrics
+router.get("/metrics", authenticate, getListeningMetrics);
 
 module.exports = router;
