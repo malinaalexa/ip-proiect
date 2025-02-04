@@ -68,7 +68,31 @@ const PersistentAudioPlayer = ({ videoUrl, playing, onClose }) => {
       console.error("Failed to log listening history", error);
     }
   };
-  
+  const addPointsToUser = async () => {
+    if (playedSeconds < 10) return; // Add points only if 10 seconds or more have been listened to
+
+    console.log("Adding points to user:", { user, points: 10 });
+    
+    try {
+      await axiosInstance.put("http://localhost:3001/api/users/profile/points", {
+        points: 10, // Adding 10 points
+      });
+      console.log("Points added successfully");
+    } catch (error) {
+      console.error("Failed to add points", error);
+    }
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+
+      if (playedSeconds >= 120) {
+        addPointsToUser();
+      }
+    }, 1000);
+
+    return () => clearInterval(timer); // Clean up interval on component unmount
+  }, [playedSeconds]);
   return (
     <Draggable nodeRef={playerRef}>
       <div 
