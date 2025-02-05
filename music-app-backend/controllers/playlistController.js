@@ -21,39 +21,55 @@ exports.getPlaylists = async (req, res) => {
 };
 
 
-  
 exports.createPlaylist = async (req, res) => {
-  const { user_id, name, songs } = req.body;
-  
+  // Extract user_id and name properly from the nested object
+  const { user_id: userObj, name, songs = [] } = req.body;
+
   // Log the request body to verify the data
-  console.log("Received request to create playlist with:", { user_id, name, songs });
-  
-  if (!songs || !Array.isArray(songs)) {
-    console.log("Error: Invalid or missing songs array");
-    return res.status(400).json({ error: "Invalid or missing songs array" });
+  console.log("Received request to create playlist with:", { userObj, name, songs });
+
+  // Ensure that user_id is correctly extracted from the nested object
+  const user_id = userObj && userObj.user_id ? userObj.user_id : null;
+
+  // Validate that user_id is a valid number
+  if (isNaN(user_id)) {
+    console.error("Invalid user_id:", user_id);
+    return res.status(400).json({ error: "Invalid user_id" });
   }
-  
+
+  // Validate that name is provided
+  if (!name || typeof name !== 'string' || name.trim() === '') {
+    console.error("Invalid name:", name);
+    return res.status(400).json({ error: "Invalid name for playlist" });
+  }
+
+  // Validate songs
+  if (!Array.isArray(songs)) {
+    console.log("Error: Invalid songs array");
+    return res.status(400).json({ error: "Invalid songs array" });
+  }
+
   try {
     // Log the SQL query before executing
     console.log("Executing SQL query to insert playlist...");
-    
+
     await executeQuery(
       "INSERT INTO Playlists (user_id, name, songs) VALUES (@UserId, @Name, @Songs)",
       [
-        { name: "UserId", type: sql.Int, value: user_id },
+        { name: "UserId", type: sql.Int, value: parseInt(user_id, 10) }, // Ensure user_id is a valid integer
         { name: "Name", type: sql.NVarChar, value: name },
-        { name: "Songs", type: sql.NVarChar, value: JSON.stringify(songs) },  // Make sure we're sending the songs as a stringified JSON
+        { name: "Songs", type: sql.NVarChar, value: JSON.stringify(songs) }
       ]
     );
-    
+
     console.log("Playlist created successfully");
     res.status(201).json({ message: "Playlist created successfully" });
   } catch (error) {
-    // Log the error details to help with debugging
     console.error("Error creating playlist:", error);
     res.status(500).json({ error: "Failed to create playlist" });
   }
 };
+
 
 
   
