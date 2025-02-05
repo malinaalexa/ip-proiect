@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import PlaylistService from '../../api/playlistService';
 import PlaylistCard from '../../components/PlaylistCard';
 
 const PlaylistsPage = () => {
   const [playlists, setPlaylists] = useState([]);
+  const navigate = useNavigate(); // Use the hook here inside the component
 
   useEffect(() => {
     const fetchPlaylists = async () => {
@@ -18,8 +20,8 @@ const PlaylistsPage = () => {
   }, []);
 
   const handleSelect = (playlistId) => {
-    console.log(`Playlist selected: ${playlistId}`);
-    window.location.href = `/playlists/${playlistId}`; // Navigate to Playlist Details Page
+    console.log('Navigating to playlist:', playlistId);
+    navigate(`/playlists/${playlistId}`); // Use navigate directly
   };
 
   return (
