@@ -21,4 +21,10 @@ export default class PlaylistService {
     });
     return PlaylistModel.fromServerResponse(response.data);
   }
+
+  static async addSongToPlaylist(playlistId, songId) {
+    const response = await axiosInstance.post(`/playlists/${playlistId}/add-song`, { songId });
+    return response.data;
+  }
 }
+

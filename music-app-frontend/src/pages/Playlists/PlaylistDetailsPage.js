@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import PlaylistService from '../../api/playlistService';
 import { useParams } from 'react-router-dom';
-import { Container, Card, ListGroup, Spinner, Button, InputGroup, FormControl, Row, Col } from 'react-bootstrap';
+import { Container, Card, Spinner, Button, InputGroup, FormControl, Row, Col } from 'react-bootstrap';
 import PersistentAudioPlayer from '../../components/PersistentAudioPlayer'; // Import PersistentAudioPlayer
 import { UserContext } from '../../context/UserContext';  // If needed for user context
 import './PlaylistDetails.css';
@@ -31,16 +31,21 @@ const PlaylistDetailsPage = () => {
   }, [id]);
 
   // Handle playing a video (this will trigger the PersistentAudioPlayer)
-  const handlePlay = (videoUrl) => {
-    setVideoUrl(videoUrl); // Set the video URL that we will play in the player
+  const handlePlay = (url) => {
+    console.log("Playing URL:", url); // Debug: Check if URL is correct
+    setVideoUrl(url); // Set the video URL that we will play in the player
     setIsPlaying(true); // Start playing the player
   };
 
   const handleSearchChange = (e) => setSearch(e.target.value);
 
   const filteredSongs = playlist
-    ? playlist.songs.filter((song) => song.toLowerCase().includes(search.toLowerCase()))
+    ? playlist.songs.filter((song) =>
+        song.name && song.name.toLowerCase().includes(search.toLowerCase())  // Assuming 'name' is a string
+      )
     : [];
+
+  console.log("Filtered Songs:", filteredSongs); // Debug: Check filtered songs
 
   if (loading) {
     return (
@@ -75,19 +80,23 @@ const PlaylistDetailsPage = () => {
 
           <Row>
             {filteredSongs.length > 0 ? (
-              filteredSongs.map((videoUrl, index) => (
-                <Col md={4} sm={6} xs={12} key={index} className="mb-4">
-                  <Card className="song-card bg-dark text-light">
-                    <Card.Body>
-                      <h5>YouTube Video {index + 1}</h5>
-                      <p className="text-muted mb-2">{videoUrl}</p>
-                      <Button variant="primary" size="sm" onClick={() => handlePlay(videoUrl)}>
-                        Play
-                      </Button>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))
+              filteredSongs.map((song, index) => {
+                const videoUrl = `https://www.youtube.com/watch?v=${song.id}`;
+                console.log(`Rendering song: ${song.name} with URL: ${videoUrl}`); // Debug
+                return (
+                  <Col md={4} sm={6} xs={12} key={song.id} className="mb-4">
+                    <Card className="song-card bg-dark text-light">
+                      <Card.Body>
+                        <h5>{song.name}</h5> {/* Render song name */}
+                        <p className="text-muted mb-2">{videoUrl}</p> {/* Render song URL */}
+                        <Button variant="primary" size="sm" onClick={() => handlePlay(videoUrl)}>
+                          Play
+                        </Button>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                );
+              })
             ) : (
               <p className="text-center mt-5">No songs found!</p>
             )}

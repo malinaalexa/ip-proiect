@@ -76,3 +76,40 @@ exports.createPlaylist = async (req, res) => {
       res.status(500).json({ error: "Failed to fetch playlist details" });
     }
   };
+
+  exports.addSongToPlaylist = async (req, res) => {
+    const { playlistId } = req.params; // Playlist ID from the URL
+    const { songId } = req.body; // Song ID from the request body
+  
+    try {
+      // Fetch the playlist
+      const result = await executeQuery("SELECT * FROM Playlists WHERE id = @Id", [
+        { name: "Id", type: sql.Int, value: playlistId }
+      ]);
+  
+      if (result.length === 0) {
+        return res.status(404).json({ error: "Playlist not found" });
+      }
+  
+      const playlist = result[0];
+      const songs = JSON.parse(playlist.songs || '[]'); // Get the existing songs (if any)
+  
+      // Add the song to the playlist
+      if (!songs.includes(songId)) {
+        songs.push(songId); // Add the song ID if it's not already in the playlist
+        await executeQuery(
+          "UPDATE Playlists SET songs = @Songs WHERE id = @Id",
+          [
+            { name: "Songs", type: sql.NVarChar, value: JSON.stringify(songs) },
+            { name: "Id", type: sql.Int, value: playlistId }
+          ]
+        );
+        res.status(200).json({ message: "Song added to playlist successfully" });
+      } else {
+        res.status(400).json({ message: "Song is already in the playlist" });
+      }
+    } catch (error) {
+      console.error("Error adding song to playlist:", error);
+      res.status(500).json({ error: "Failed to add song to playlist" });
+    }
+  };
